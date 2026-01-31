@@ -31,6 +31,7 @@ cover/
 # Claude Code
 .claude/
 .claudeignore
+claudedocs/
 CLAUDE.md
 
 # Project specific
