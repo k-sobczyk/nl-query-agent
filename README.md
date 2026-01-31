@@ -270,3 +270,11 @@ Learn from query patterns to optimize performance. Implement proactive alerts us
 
 **Integration Possibilities**:
 MCP server for Claude Desktop enabling conversational data exploration. REST API leveraging Cloud Functions with BigQuery backend. Webhook support using Cloud Pub/Sub for automated reporting workflows triggered by data events or scheduled queries.
+
+Switch To OpenRouter
+
+
+Application level caching (lru_cache?)
+Prompt caching to speed it up?
+
+Subapase instead of bigquery?

@@ -307,20 +307,20 @@ class TestQueryMetadata:
 
     def test_query_metadata_success(self):
         """Successful query metadata should work."""
-        metadata = QueryMetadata(record_count=42, execution_time_ms=123.45, query_success=True, error_message=None)
+        metadata = QueryMetadata(record_count=42, execution_time_ms=123.45, success=True, error_message=None)
         assert metadata.record_count == 42
         assert metadata.execution_time_ms == 123.45
-        assert metadata.query_success is True
+        assert metadata.success is True
         assert metadata.error_message is None
 
     def test_query_metadata_failure(self):
         """Failed query metadata should work."""
         metadata = QueryMetadata(
-            record_count=0, execution_time_ms=50.0, query_success=False, error_message='Database connection failed'
+            record_count=0, execution_time_ms=50.0, success=False, error_message='Database connection failed'
         )
         assert metadata.record_count == 0
         assert metadata.execution_time_ms == 50.0
-        assert metadata.query_success is False
+        assert metadata.success is False
         assert metadata.error_message == 'Database connection failed'
 
     def test_query_metadata_negative_count(self):
@@ -335,6 +335,6 @@ class TestQueryMetadata:
 
     def test_query_metadata_zero_values(self):
         """Zero values should work."""
-        metadata = QueryMetadata(record_count=0, execution_time_ms=0.0, query_success=True)
+        metadata = QueryMetadata(record_count=0, execution_time_ms=0.0, success=True)
         assert metadata.record_count == 0
         assert metadata.execution_time_ms == 0.0

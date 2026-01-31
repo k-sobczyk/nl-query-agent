@@ -173,5 +173,6 @@ class QueryMetadata(BaseModel):
 
     record_count: int = Field(..., ge=0, description='Number of matching records')
     execution_time_ms: float = Field(..., ge=0.0, description='Execution time in milliseconds')
-    query_success: bool = Field(..., description='Query execution status')
+    success: bool = Field(..., description='Query execution status')
     error_message: str | None = Field(None, description='Error message if query failed')
+    output_file: str | None = Field(None, description='Path to saved query results file')
