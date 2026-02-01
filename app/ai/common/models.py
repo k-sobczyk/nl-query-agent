@@ -10,7 +10,7 @@ class VehicleQueryParams(BaseModel):
     """Parameters for querying vehicle telemetry data."""
 
     vehicle_id: str | None = Field(
-        None,
+        default=None,
         description=(
             'Vehicle ID filter. Supports: '
             'exact match (e.g., "VIN123"), '
@@ -21,34 +21,34 @@ class VehicleQueryParams(BaseModel):
     )
 
     timestamp_start: str | None = Field(
-        None,
+        default=None,
         description='Start timestamp in format YYYY-MM-DD-HH (e.g., 2024-11-21-15)',
     )
 
     timestamp_end: str | None = Field(
-        None,
+        default=None,
         description='End timestamp in format YYYY-MM-DD-HH (e.g., 2024-11-21-23)',
     )
 
     battery_health_min: float | None = Field(
-        None,
+        default=None,
         description='Minimum battery health percentage (0-100)',
     )
 
     battery_health_max: float | None = Field(
-        None,
+        default=None,
         description='Maximum battery health percentage (0-100)',
     )
 
     odometer_km_min: int | None = Field(
-        None,
+        default=None,
         ge=0,
         le=10_000_000,
         description='Minimum odometer reading in kilometers (0-10,000,000)',
     )
 
     odometer_km_max: int | None = Field(
-        None,
+        default=None,
         ge=0,
         le=10_000_000,
         description='Maximum odometer reading in kilometers (0-10,000,000)',
@@ -155,5 +155,5 @@ class QueryMetadata(BaseModel):
     record_count: int = Field(..., ge=0, description='Number of matching records')
     execution_time_ms: float = Field(..., ge=0.0, description='Execution time in milliseconds')
     success: bool = Field(..., description='Query execution status')
-    error_message: str | None = Field(None, description='Error message if query failed')
-    output_file: str | None = Field(None, description='Path to saved query results file')
+    error_message: str | None = Field(default=None, description='Error message if query failed')
+    output_file: str | None = Field(default=None, description='Path to saved query results file')
