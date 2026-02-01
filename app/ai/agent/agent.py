@@ -1,84 +1,112 @@
 """Vehicle telemetry query agent with LLM function calling."""
 
+import json
 import os
 
-from google import genai
-from google.genai import types
+from anthropic import Anthropic
 
-from app.ai.common.constants import GEMINI_MODEL
+from app.ai.common.constants import CLAUDE_MODEL
 from app.ai.common.prompts import get_system_instruction
 from app.ai.tools.query_tool import query_vehicle_data
 
 
 class VehicleQueryAgent:
-    """Conversational agent for querying vehicle telemetry data using Gemini."""
+    """Conversational agent for querying vehicle telemetry data using Claude."""
 
     def __init__(self):
-        """Initialize the agent with Gemini client and tool configuration."""
-        api_key = os.getenv('GEMINI_API_KEY')
+        """Initialize the agent with Anthropic client and tool configuration."""
+        api_key = os.getenv('ANTHROPIC_API_KEY')
         if not api_key:
-            raise ValueError('GEMINI_API_KEY environment variable is required')
+            raise ValueError('ANTHROPIC_API_KEY environment variable is required')
 
-        self.client = genai.Client(api_key=api_key)
-        self.model = GEMINI_MODEL
+        self.client = Anthropic(api_key=api_key)
+        self.model = CLAUDE_MODEL
         self.conversation_history: list = []
         self.system_instruction = get_system_instruction()
 
-    def _execute_function_calls(self, content: types.Content) -> types.Content:
-        """Process all function calls and return tool responses."""
-        tool_responses = []
+    def _get_tool_schema(self) -> list:
+        """Return the tool schema for Claude API."""
+        return [
+            {
+                'name': 'query_vehicle_data',
+                'description': 'Query vehicle telemetry data with optional filters',
+                'input_schema': {
+                    'type': 'object',
+                    'properties': {
+                        'vehicle_id': {
+                            'type': 'string',
+                            'description': 'Vehicle ID (supports wildcards * and ?)',
+                        },
+                        'timestamp_start': {
+                            'type': 'string',
+                            'description': 'Start timestamp in YYYY-MM-DD-HH format',
+                        },
+                        'timestamp_end': {
+                            'type': 'string',
+                            'description': 'End timestamp in YYYY-MM-DD-HH format',
+                        },
+                        'battery_health_min': {
+                            'type': 'number',
+                            'description': 'Minimum battery health percentage (0-100)',
+                        },
+                        'battery_health_max': {
+                            'type': 'number',
+                            'description': 'Maximum battery health percentage (0-100)',
+                        },
+                        'odometer_km_min': {
+                            'type': 'integer',
+                            'description': 'Minimum odometer reading in kilometers',
+                        },
+                        'odometer_km_max': {
+                            'type': 'integer',
+                            'description': 'Maximum odometer reading in kilometers',
+                        },
+                    },
+                },
+            }
+        ]
 
-        if not content.parts:
-            return types.Content(role='model', parts=[])
+    def _execute_tool_calls(self, content_blocks: list) -> list:
+        """Process all tool calls and return tool results."""
+        tool_results = []
 
-        for part in content.parts:
-            if part.function_call:
-                # Validate function_call has required fields
-                if not part.function_call.name or not part.function_call.args:
-                    continue
+        for block in content_blocks:
+            if block.type == 'tool_use':
+                if block.name == 'query_vehicle_data':
+                    result = query_vehicle_data(**block.input)
+                else:
+                    result = {'error': f'Unknown tool: {block.name}'}
 
-                result = query_vehicle_data(**part.function_call.args)
-                tool_responses.append(
-                    types.Part.from_function_response(
-                        name=part.function_call.name,
-                        response=result,
-                    )
-                )
-        return types.Content(role='model', parts=tool_responses)
+                tool_results.append({'type': 'tool_result', 'tool_use_id': block.id, 'content': json.dumps(result)})
+
+        return tool_results
 
     def query(self, user_message: str) -> str:
-        """Send user message and handle function calling loop."""
-        self.conversation_history.append(types.Content(role='user', parts=[types.Part.from_text(text=user_message)]))
+        """Send user message and handle tool calling loop."""
+        self.conversation_history.append({'role': 'user', 'content': user_message})
 
         while True:
-            response = self.client.models.generate_content(
+            response = self.client.messages.create(
                 model=self.model,
-                contents=self.conversation_history,
-                config=types.GenerateContentConfig(
-                    tools=[query_vehicle_data],
-                    system_instruction=self.system_instruction,
-                ),
+                max_tokens=4096,
+                system=self.system_instruction,
+                messages=self.conversation_history,
+                tools=self._get_tool_schema(),
             )
 
-            # Validate response structure
-            if not response.candidates or len(response.candidates) == 0:
-                return 'I encountered an issue processing your request. Please try again.'
+            # Add assistant's response to history
+            self.conversation_history.append({'role': 'assistant', 'content': response.content})
 
-            content = response.candidates[0].content
-            if not content:
-                return 'I encountered an issue processing your request. Please try again.'
-
-            self.conversation_history.append(content)
-
-            # Check if there's a function call
-            if content.parts and content.parts[0].function_call:
-                tool_content = self._execute_function_calls(content)
-                self.conversation_history.append(tool_content)
+            # Check for tool use
+            if response.stop_reason == 'tool_use':
+                tool_results = self._execute_tool_calls(response.content)
+                self.conversation_history.append({'role': 'user', 'content': tool_results})
                 continue
 
             # Return text response
-            if content.parts and content.parts[0].text:
-                return content.parts[0].text
+            for block in response.content:
+                if block.type == 'text':
+                    return block.text
 
             return 'I encountered an issue processing your request. Please try again.'
 
