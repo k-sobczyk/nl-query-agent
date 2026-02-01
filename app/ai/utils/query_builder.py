@@ -34,9 +34,9 @@ def get_database_connection():
 
 
 def _parse_timestamp(timestamp_str: str) -> str:
-    """Convert YYYY-MM-DD-HH format to YYYY-MM-DD HH:00:00 for SQL."""
+    """Convert YYYY-MM-DD-HH format to YYYY-MM-DDTHH:00:00Z for SQL."""
     parts = timestamp_str.split('-')
-    return f'{parts[0]}-{parts[1]}-{parts[2]} {parts[3]}:00:00'
+    return f'{parts[0]}-{parts[1]}-{parts[2]}T{parts[3]}:00:00Z'
 
 
 def _add_range_filter(

@@ -12,21 +12,21 @@ from app.ai.utils.query_builder import (
 
 
 def test_parse_timestamp_converts_format():
-    """Converts YYYY-MM-DD-HH to YYYY-MM-DD HH:00:00."""
+    """Converts YYYY-MM-DD-HH to YYYY-MM-DDTHH:00:00Z."""
     result = _parse_timestamp('2024-11-21-15')
-    assert result == '2024-11-21 15:00:00'
+    assert result == '2024-11-21T15:00:00Z'
 
 
 def test_parse_timestamp_different_values():
     """Handles different date and time values."""
     result = _parse_timestamp('2025-01-05-23')
-    assert result == '2025-01-05 23:00:00'
+    assert result == '2025-01-05T23:00:00Z'
 
 
 def test_parse_timestamp_midnight():
     """Handles midnight hour."""
     result = _parse_timestamp('2024-12-31-00')
-    assert result == '2024-12-31 00:00:00'
+    assert result == '2024-12-31T00:00:00Z'
 
 
 def test_add_range_filter_both_min_max():
@@ -138,8 +138,8 @@ def test_build_query_timestamp_range():
 
     assert 'timestamp >= %(timestamp_start)s' in query
     assert 'timestamp <= %(timestamp_end)s' in query
-    assert query_params['timestamp_start'] == '2024-11-21 15:00:00'
-    assert query_params['timestamp_end'] == '2024-11-21 23:00:00'
+    assert query_params['timestamp_start'] == '2024-11-21T15:00:00Z'
+    assert query_params['timestamp_end'] == '2024-11-21T23:00:00Z'
 
 
 def test_build_query_battery_health_range():

@@ -278,3 +278,7 @@ Application level caching (lru_cache?)
 Prompt caching to speed it up?
 
 Subapase instead of bigquery?
+Test coverage
+unit tests
+etc.
+docs strings
