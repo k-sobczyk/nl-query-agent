@@ -21,7 +21,7 @@ class VehicleQueryAgent:
 
         self.client = genai.Client(api_key=api_key)
         self.model = GEMINI_MODEL
-        self.conversation_history: list[types.Content] = []
+        self.conversation_history: list = []
         self.system_instruction = get_system_instruction()
 
     def _execute_function_calls(self, content: types.Content) -> types.Content:

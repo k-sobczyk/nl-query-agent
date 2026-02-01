@@ -282,3 +282,5 @@ Test coverage
 unit tests
 etc.
 docs strings
+Data and loggs from the app
+create a sync/async api or even MCP for it

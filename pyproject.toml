@@ -36,7 +36,7 @@ xfail_strict = true
 [tool.ruff]
 line-length = 120
 target-version = "py313"
-include = ["app/**/*.py", "tests/**/*.py"]
+include = ["app/**/*.py", "tests/**/*.py", "scripts/**/*.py"]
 exclude = []
 
 [tool.ruff.lint]
@@ -78,7 +78,7 @@ exclude_lines = [
 #typeCheckingMode = "strict"
 reportUnnecessaryTypeIgnoreComment = false
 reportMissingTypeStubs = false
-include = ["app"]
+include = ["app", "scripts"]
 venvPath = ".venv"
 
 [build-system]
