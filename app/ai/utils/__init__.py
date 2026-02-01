@@ -1,1 +1,1 @@
-"""Database module for PostgreSQL data access and management."""
+"""Utility functions for query building and pattern conversion."""
