@@ -1,5 +1,5 @@
 .DEFAULT_GOAL := all
-sources = app tests
+sources = app tests scripts
 
 .PHONY: .uv  # Check that uv is installed
 .uv:
