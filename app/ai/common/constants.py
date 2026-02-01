@@ -1,5 +1,5 @@
 """Constants and configuration for the AI agent."""
 
 DATA_OUTPUT_DIR = 'data'
-
-GEMINI_MODEL = 'gemini-2.5-flash'
+CLAUDE_MODEL = 'claude-sonnet-4-5-20250929'
+CLAUDE_TEMPERATURE = 0.5
