@@ -13,8 +13,8 @@ from app.ai.common.constants import DATA_OUTPUT_DIR
 from app.ai.common.models import QueryMetadata, VehicleQueryParams
 from app.ai.utils.pattern_converter import wildcard_to_sql_like
 
-DEFAULT_DB_SCHEMA = ''
-DEFAULT_DB_TABLE = ''
+DEFAULT_DB_SCHEMA = 'public'
+DEFAULT_DB_TABLE = 'telemetry'
 MAX_QUERY_RESULTS = 100
 
 
