@@ -5,7 +5,7 @@ import os
 
 from anthropic import Anthropic
 
-from app.ai.common.constants import CLAUDE_MODEL
+from app.ai.common.constants import CLAUDE_MODEL, CLAUDE_TEMPERATURE
 from app.ai.common.prompts import get_system_instruction
 from app.ai.tools.query_tool import query_vehicle_data
 
@@ -13,7 +13,7 @@ from app.ai.tools.query_tool import query_vehicle_data
 class VehicleQueryAgent:
     """Conversational agent for querying vehicle telemetry data using Claude."""
 
-    def __init__(self):
+    def __init__(self, temperature: float | None = None):
         """Initialize the agent with Anthropic client and tool configuration."""
         api_key = os.getenv('ANTHROPIC_API_KEY')
         if not api_key:
@@ -21,6 +21,7 @@ class VehicleQueryAgent:
 
         self.client = Anthropic(api_key=api_key)
         self.model = CLAUDE_MODEL
+        self.temperature = temperature if temperature is not None else CLAUDE_TEMPERATURE
         self.conversation_history: list = []
         self.system_instruction = get_system_instruction()
 
@@ -89,6 +90,7 @@ class VehicleQueryAgent:
             response = self.client.messages.create(
                 model=self.model,
                 max_tokens=4096,
+                temperature=self.temperature,
                 system=self.system_instruction,
                 messages=self.conversation_history,
                 tools=self._get_tool_schema(),
