@@ -47,4 +47,4 @@ all: format lint typecheck testcov
 
 .PHONY: run
 run: .uv
-	uv run agent
+	uv run python app/main.py
