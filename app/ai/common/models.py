@@ -57,32 +57,19 @@ class VehicleQueryParams(BaseModel):
     @field_validator('vehicle_id')
     @classmethod
     def validate_vehicle_id(cls, value: str | None) -> str | None:
-        """Validate vehicle_id is safe and within reasonable length.
-
-        Supports safe wildcard patterns using * instead of arbitrary regex:
-        - Exact match: "VIN123"
-        - Starts with: "VVA1*"
-        - Ends with: "*78"
-        - Contains: "*ABC*"
-        """
+        """Validate vehicle_id is safe: max 100 chars, alphanumeric + hyphens/underscores/wildcards, max 2 wildcards."""
         if value is None:
             return value
 
-        # Length limit to prevent ReDoS and resource exhaustion
         if len(value) > 100:
             raise ValueError('vehicle_id pattern cannot exceed 100 characters')
 
-        # Only allow alphanumeric characters, hyphens, underscores, and wildcards
-        # This prevents regex special characters that could cause ReDoS
-        allowed_pattern = r'^[A-Za-z0-9\-_*]+$'
-        if not re.match(allowed_pattern, value):
+        if not re.match(r'^[A-Za-z0-9\-_*]+$', value):
             raise ValueError('vehicle_id can only contain letters, numbers, hyphens, underscores, and wildcards (*)')
 
-        # Limit wildcard usage to prevent abuse
         if value.count('*') > 2:
             raise ValueError('vehicle_id pattern cannot contain more than 2 wildcards')
 
-        # Prevent patterns that are just wildcards (too broad)
         if value.strip('*') == '':
             raise ValueError('vehicle_id pattern must contain at least one non-wildcard character')
 
@@ -119,7 +106,7 @@ class VehicleQueryParams(BaseModel):
     @field_validator('odometer_km_min', 'odometer_km_max')
     @classmethod
     def validate_odometer(cls, value: int | None) -> int | None:
-        """Validate odometer reading is within realistic range."""
+        """Validate odometer is non-negative and below 10M km."""
         if value is None:
             return value
 
@@ -127,16 +114,12 @@ class VehicleQueryParams(BaseModel):
             raise ValueError(f'Odometer reading must be non-negative, got: {value}')
 
         if value > 10_000_000:
-            raise ValueError(
-                f'Odometer reading cannot exceed 10,000,000 km (got: {value:,}). '
-                'This limit prevents data entry errors and unrealistic values.'
-            )
+            raise ValueError(f'Odometer cannot exceed 10,000,000 km (got: {value:,})')
 
         return value
 
     def model_post_init(self, __context) -> None:
-        """Validate logical consistency of range parameters after model initialization."""
-        # Validate battery health range
+        """Validate range parameters: min cannot exceed max."""
         if (
             self.battery_health_min is not None
             and self.battery_health_max is not None
@@ -147,7 +130,6 @@ class VehicleQueryParams(BaseModel):
                 f'cannot be greater than battery_health_max ({self.battery_health_max})'
             )
 
-        # Validate odometer range
         if (
             self.odometer_km_min is not None
             and self.odometer_km_max is not None
@@ -158,7 +140,6 @@ class VehicleQueryParams(BaseModel):
                 f'cannot be greater than odometer_km_max ({self.odometer_km_max})'
             )
 
-        # Validate timestamp range
         if self.timestamp_start is not None and self.timestamp_end is not None:
             start = datetime.strptime(self.timestamp_start, '%Y-%m-%d-%H')
             end = datetime.strptime(self.timestamp_end, '%Y-%m-%d-%H')
