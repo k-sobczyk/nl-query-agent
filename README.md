@@ -1,4 +1,4 @@
-*written fully by human
+**WRITTEN BY HUMAN**
 
 # Project goal and assumtions.
 Creating and natural language interface for vehicle telemetry data using LLM-powered query parsing.
@@ -14,38 +14,13 @@ Project design objectives:
 - Safety first - no LLM separated from data source, no raw company/customer data exposure to the LLM
 - priorytet bezpieczeństwa i skalowności (symulowanie warunków produkcyjnych bez faktycznego ich wdrażania)
 
-## Technology Stack
+### Technology Stack
 
 - Language: Python
 - Libraries: Google ADK, Google GenAI, Pydantic
 - LLM Model: gemini-2.5-flash
 - Database: BigQuery
 - Development tools: uv, ruff, pyright, pytest, pre-commit hooks
-
-===
-
-**Example Query:**
-```
-"Show me all vehicles with battery health below 85%"
-```
-
-**Example data:**
-```json
-{
-  "vehicle_id": "CAR001DPBHSA",
-  "timestamp": "2024-11-20T09:00:00Z",
-  "battery_health_percent": 77.4,
-  "odometer_km": 115326
-},
-{
-  "vehicle_id": "VEH010OC6UZH",
-  "timestamp": "2024-11-15T23:00:00Z",
-  "battery_health_percent": 82.3,
-  "odometer_km": 49916
-}
-```
-
-===
 
 ### Installation and how to run
 
@@ -55,13 +30,17 @@ gcloud auth application-default login (to access GCP servies like Gemini and Big
 
 make install
 
-make run agent
+docker compose -up d
 
-- query agent inside terminal (for now)
+uv run python scripts/load_data_to_supabase.py
 
-## Project Folder/Files Structure
+make run
+
+### Project Folder/Files Structure
 
 TODO
+
+
 
 ### Architecture & Design Decisions
 
@@ -119,6 +98,8 @@ Other:
   - This clear boundary prevents the LLM from accessing or manipulating the database directly
 
 - Only query metadata (execution time, result count, error status) is sent back to the LLM for response generation. Raw customer data never leaves the secure application boundary. (it will be shown in other way but i dont know which one yet)
+
+
 
 ### Security Principles
 
@@ -284,3 +265,29 @@ etc.
 docs strings
 Data and loggs from the app
 create a sync/async api or even MCP for it
+
+
+===
+
+**AI GENERATED SUMMARY OF THE WORK THAT WAS DONE (verified by human)**
+
+**Example Query:**
+```
+"Show me all vehicles with battery health below 85%"
+```
+
+**Example data:**
+```json
+{
+  "vehicle_id": "CAR001DPBHSA",
+  "timestamp": "2024-11-20T09:00:00Z",
+  "battery_health_percent": 77.4,
+  "odometer_km": 115326
+},
+{
+  "vehicle_id": "VEH010OC6UZH",
+  "timestamp": "2024-11-15T23:00:00Z",
+  "battery_health_percent": 82.3,
+  "odometer_km": 49916
+}
+```

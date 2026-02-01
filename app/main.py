@@ -1,6 +1,10 @@
 """CLI entry point for executing natural language queries against vehicle data."""
 
+from dotenv import load_dotenv
+
 from app.ai.agent.agent import VehicleQueryAgent
+
+load_dotenv()
 
 
 def main():

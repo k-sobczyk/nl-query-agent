@@ -1,4 +1,4 @@
-"""Load cleaned telemetry data into Supabase database."""
+"""Load cleaned telemetry data into PostgreSQL database."""
 
 import json
 import os
