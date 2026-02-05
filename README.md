@@ -1,13 +1,36 @@
-# Vehicle Telemetry Natural Language Interface
+# Natural Language Query Agent
 
-A production-minded AI system that enables natural language queries against vehicle telemetry data. Built with security-first principles, this project demonstrates how to safely integrate LLMs with databases by isolating customer data from AI models while maintaining full query capabilities.
+**Privacy-first AI-to-database interface using Claude function calling**
 
-**Tech Stack:** Claude Sonnet 4.5 + PostgreSQL + Pydantic
+Convert natural language questions into safe database queries without exposing customer data to LLMs. This project demonstrates a production-ready architecture for integrating AI with databases through structured function calling rather than SQL generation.
+
+```bash
+You: "Show vehicles with battery below 85%"
+Agent: Found 12 vehicles matching your criteria
+       Results saved to: data/query_results_20240215_143022.csv
+```
+
+**Tech Stack:** Claude Sonnet 4.5 • PostgreSQL • Pydantic
+
+**Key Innovation:** The LLM never sees customer data or generates SQL—only structured parameters pass through validation layers to build safe parameterized queries.
+
+## Use Cases
+
+This architecture is adaptable to any domain requiring natural language data access:
+
+- **Vehicle Telemetry** (implemented): Battery health, odometer readings, maintenance schedules
+- **E-commerce Analytics**: Order history, customer behavior, inventory queries
+- **Healthcare Records**: Patient data, appointment scheduling, medical history (HIPAA-compliant with proper access controls)
+- **Financial Data**: Transaction history, account balances, fraud detection
+- **IoT Monitoring**: Sensor readings, device status, anomaly detection
+
+The pattern is the same: define your Pydantic models → build safe queries → keep customer data isolated from the LLM.
 
 ---
 
 ## Table of Contents
 
+- [Use Cases](#use-cases)
 - [Quick Start](#quick-start)
 - [Architecture & Design Decisions](#architecture--design-decisions)
   - [LLM Function Calling](#llm-function-calling)
@@ -21,8 +44,8 @@ A production-minded AI system that enables natural language queries against vehi
   - [Observability](#observability)
 - [Technical Stack](#technical-stack)
 - [Development Commands](#development-commands)
-- [Why This Approach?](#why-this-approach)
-- [Future Enhancements & With More Time](#future-enhancements--with-more-time)
+- [Why This Architecture?](#why-this-architecture)
+- [Future Enhancements](#future-enhancements)
 
 ---
 
@@ -201,21 +224,21 @@ make all        # Run all checks (format + lint + typecheck + testcov)
 
 ---
 
-## Why This Approach?
+## Why This Architecture?
 
-**For the recruitment task**, I chose this architecture because:
+This design prioritizes production-readiness over prototyping shortcuts:
 
-1. **Security matters:** Separating LLM logic from data access prevents common vulnerabilities (SQL injection, data leakage) while maintaining full query capabilities.
+1. **Security First:** Separating LLM logic from data access prevents SQL injection, data leakage, and prompt injection attacks while maintaining full query capabilities.
 
-2. **Production thinking:** While this is a POC, the design patterns (parameterized queries, validation layers, error handling, query limits) translate directly to production systems handling millions of records.
+2. **Production Patterns:** Parameterized queries, validation layers, error handling, and query limits translate directly to systems handling millions of records—not just proof-of-concepts.
 
-3. **Testability:** The clear separation (LLM → Pydantic → Query Builder → Database) enables comprehensive unit testing without mocking the LLM for every test.
+3. **Testability:** Clear separation (LLM → Pydantic → Query Builder → Database) enables comprehensive unit testing (98 tests) without mocking the LLM for every scenario.
 
-4. **Extensibility:** Adding new data sources requires only new Pydantic models and query builders, not architectural changes.
+4. **Extensibility:** Adding new data sources or query types requires only new Pydantic models and query builders—no architectural changes needed.
 
 ---
 
-## Future Enhancements & With More Time
+## Future Enhancements
 
 ### Multi-Source Data Integration
 - **Structured data sources:** Maintenance records, driver behavior, route history, warranty claims
